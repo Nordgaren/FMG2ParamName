@@ -28,13 +28,18 @@ namespace FMG2ParamName
             var paramDefs = new List<PARAMDEF>();
             var paramList = new List<PARAM>();
 
-
             if (!File.Exists($@"{gameParamFile}.bak"))
                 File.Copy(gameParamFile, $@"{gameParamFile}.bak");
 
             ReadFMGs(itemFMGBND, menuFMGBND);
             ReadParams(paramBND, paramDefBND, paramDefs, paramList);
+            WriteParams(paramBND);
 
+            paramBND.Write(gameParamFile);
+        }
+
+        private void WriteParams(IBinder paramBND)
+        {
             foreach (var param in paramBND.Files)
             {
                 var paramName = Path.GetFileName(param.Name);
@@ -63,8 +68,6 @@ namespace FMG2ParamName
                         break;
                 }
             }
-
-            paramBND.Write(gameParamFile);
         }
 
         private void ReadParams(IBinder paramBND, IBinder paramDefBND, List<PARAMDEF> paramDefs, List<PARAM> paramList)
