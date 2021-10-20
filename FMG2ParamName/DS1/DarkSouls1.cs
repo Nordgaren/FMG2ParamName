@@ -29,7 +29,7 @@ namespace FMG2ParamName
             var paramList = new List<PARAM>();
 
 
-            if (File.Exists($@"{gameParamFile}.bak"))
+            if (!File.Exists($@"{gameParamFile}.bak"))
                 File.Copy(gameParamFile, $@"{gameParamFile}.bak");
 
             ReadFMGs(itemFMGBND, menuFMGBND);
