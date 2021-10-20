@@ -28,6 +28,9 @@ namespace FMG2ParamName
             var paramDefs = new List<PARAMDEF>();
             var paramList = new List<PARAM>();
 
+
+            if (File.Exists($@"{gameParamFile}.bak"))
+                File.Copy(gameParamFile, $@"{gameParamFile}.bak");
             //Read Data
             ReadFMGs(itemFMGBND, menuFMGBND);
             ReadParams(paramBND, paramDefBND, paramDefs, paramList);
@@ -154,7 +157,11 @@ namespace FMG2ParamName
             foreach (var armor in equipProParam.Rows)
             {
                 if (armorNames.ContainsKey(armor.ID))
+                {
+                    if (string.IsNullOrWhiteSpace(armorNames[armor.ID]))
+                        continue;
                     armor.Name = armorNames[armor.ID];
+                }
             }
         }
 
@@ -174,7 +181,12 @@ namespace FMG2ParamName
             foreach (var weapon in equipWepParam.Rows)
             {
                 if (weaponNames.ContainsKey(weapon.ID))
+                {
+                    if (string.IsNullOrWhiteSpace(weaponNames[weapon.ID]))
+                        continue;
+
                     weapon.Name = weaponNames[weapon.ID];
+                }
             }
         }
 
@@ -193,7 +205,12 @@ namespace FMG2ParamName
             foreach (var item in goodsParam.Rows)
             {
                 if (itemNames.ContainsKey(item.ID))
+                {
+                    if (string.IsNullOrWhiteSpace(itemNames[item.ID]))
+                        continue;
+
                     item.Name = itemNames[item.ID];
+                }
             }
         }
 
@@ -212,7 +229,11 @@ namespace FMG2ParamName
             foreach (var spell in magicParam.Rows)
             {
                 if (spellNames.ContainsKey(spell.ID))
+                {
+                    if (string.IsNullOrWhiteSpace(spellNames[spell.ID]))
+                        continue;
                     spell.Name = spellNames[spell.ID];
+                }
             }
         }
 
@@ -231,7 +252,11 @@ namespace FMG2ParamName
             foreach (var ring in accessoryParam.Rows)
             {
                 if (ringNames.ContainsKey(ring.ID))
+                {
+                    if (string.IsNullOrWhiteSpace(ringNames[ring.ID]))
+                        continue;
                     ring.Name = ringNames[ring.ID];
+                }
             }
         }
 
@@ -243,35 +268,65 @@ namespace FMG2ParamName
             {
                 switch (param.ID)
                 {
+                    case 2000:
+                        param.Name = $"Starting Gear: {classNames[132020]}";
+                        break;
+                    case 2001:
+                        param.Name = $"Starting Gear: {classNames[132021]}";
+                        break;
+                    case 2002:
+                        param.Name = $"Starting Gear: {classNames[132022]}";
+                        break;
+                    case 2003:
+                        param.Name = $"Starting Gear: {classNames[132023]}";
+                        break;
+                    case 2004:
+                        param.Name = $"Starting Gear: {classNames[132024]}";
+                        break;
+                    case 2005:
+                        param.Name = $"Starting Gear: {classNames[132025]}";
+                        break;
+                    case 2006:
+                        param.Name = $"Starting Gear: {classNames[132026]}";
+                        break;
+                    case 2007:
+                        param.Name = $"Starting Gear: {classNames[132027]}";
+                        break;
+                    case 2008:
+                        param.Name = $"Starting Gear: {classNames[132028]}";
+                        break;
+                    case 2009:
+                        param.Name = $"Starting Gear: {classNames[132029]}";
+                        break;
                     case 3000:
-                        param.Name = classNames[132020];
+                        param.Name = $"Starting Display: {classNames[132020]}";
                         break;
                     case 3001:
-                        param.Name = classNames[132021];
+                        param.Name = $"Starting Display: {classNames[132021]}";
                         break;
                     case 3002:
-                        param.Name = classNames[132022];
+                        param.Name = $"Starting Display: {classNames[132022]}";
                         break;
                     case 3003:
-                        param.Name = classNames[132023];
+                        param.Name = $"Starting Display: {classNames[132023]}";
                         break;
                     case 3004:
-                        param.Name = classNames[132024];
+                        param.Name = $"Starting Display: {classNames[132024]}";
                         break;
                     case 3005:
-                        param.Name = classNames[132025];
+                        param.Name = $"Starting Display: {classNames[132025]}";
                         break;
                     case 3006:
-                        param.Name = classNames[132026];
+                        param.Name = $"Starting Display: {classNames[132026]}";
                         break;
                     case 3007:
-                        param.Name = classNames[132027];
+                        param.Name = $"Starting Display: {classNames[132027]}";
                         break;
                     case 3008:
-                        param.Name = classNames[132028];
+                        param.Name = $"Starting Display: {classNames[132028]}";
                         break;
                     case 3009:
-                        param.Name = classNames[132029];
+                        param.Name = $"Starting Display: {classNames[132029]}";
                         break;
                     default:
                         break;
