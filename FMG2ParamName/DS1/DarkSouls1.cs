@@ -33,12 +33,12 @@ namespace FMG2ParamName
 
             ReadFMGs(itemFMGBND, menuFMGBND);
             ReadParams(paramBND, paramDefBND, paramDefs, paramList);
-            WriteParams(paramBND);
+            WriteParamBytes(paramBND);
 
             paramBND.Write(gameParamFile);
         }
 
-        private void WriteParams(IBinder paramBND)
+        private void WriteParamBytes(IBinder paramBND)
         {
             foreach (var param in paramBND.Files)
             {
