@@ -61,6 +61,9 @@ namespace FMG2ParamName
                     case "Magic.param":
                         param.Bytes = MAGIC_PARAM_ST.Write();
                         break;
+                    case "TalkParam.param":
+                        param.Bytes = TALK_PARAM_ST.Write();
+                        break;
                     case "CharaInitParam.param":
                         param.Bytes = CHARACTER_INIT_PARAM.Write();
                         break;
@@ -113,6 +116,10 @@ namespace FMG2ParamName
                         EQUIP_PARAM_ACCESSORY_ST = param;
                         SortRings(EQUIP_PARAM_ACCESSORY_ST);
                         break;
+                    case "TALK_PARAM_ST":
+                        TALK_PARAM_ST = param;
+                        SortTalk(TALK_PARAM_ST);
+                        break;
                     case "CHARACTER_INIT_PARAM":
                         CHARACTER_INIT_PARAM = param;
                         SortClasses(CHARACTER_INIT_PARAM);
@@ -123,11 +130,38 @@ namespace FMG2ParamName
             }
         }
 
-        PARAM EQUIP_PARAM_PROTECTOR_ST;
+        private void SortTalk(PARAM talkParam)
+        {
+            var talkNames = MenuFMGS[0].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
+
+            foreach (var item in MenuFMGS[18].Entries)
+            {
+                if (!talkNames.ContainsKey(item.ID))
+                    talkNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(talkNames[item.ID]))
+                    talkNames[item.ID] = item.Text;
+            }
+
+            foreach (var armor in talkParam.Rows)
+            {
+                if (talkNames.ContainsKey(armor.ID))
+                {
+                    if (string.IsNullOrWhiteSpace(talkNames[armor.ID]))
+                        continue;
+
+                    armor.Name = talkNames[armor.ID];
+                }
+            }
+
+
+        }
+
+            PARAM EQUIP_PARAM_PROTECTOR_ST;
         PARAM EQUIP_PARAM_WEAPON_ST;
         PARAM EQUIP_PARAM_GOODS_ST;
         PARAM MAGIC_PARAM_ST;
         PARAM EQUIP_PARAM_ACCESSORY_ST;
+        PARAM TALK_PARAM_ST;
         PARAM CHARACTER_INIT_PARAM;
 
         private void ReadFMGs(IBinder itemFMGBND, IBinder menuFMGBND)
