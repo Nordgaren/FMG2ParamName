@@ -31,7 +31,7 @@ namespace FMG2ParamName
 
             if (File.Exists($@"{gameParamFile}.bak"))
                 File.Copy(gameParamFile, $@"{gameParamFile}.bak");
-            //Read Data
+
             ReadFMGs(itemFMGBND, menuFMGBND);
             ReadParams(paramBND, paramDefBND, paramDefs, paramList);
 
@@ -167,7 +167,6 @@ namespace FMG2ParamName
 
         private void SortWeapons(PARAM equipWepParam)
         {
-            //Make weaponNames dictionary
             var weaponNames = ItemFMGS[1].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
             foreach (var item in MenuFMGS[29].Entries)
             {
@@ -177,7 +176,6 @@ namespace FMG2ParamName
                     weaponNames[item.ID] = item.Text;
             }
 
-            //Add Weapons to WeaponList
             foreach (var weapon in equipWepParam.Rows)
             {
                 if (weaponNames.ContainsKey(weapon.ID))
