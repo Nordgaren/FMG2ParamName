@@ -1,4 +1,5 @@
 ﻿using SoulsFormats;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,22 +9,26 @@ namespace FMG2ParamName
 {
     class DarkSouls1
     {
-        public string ExeDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
-        public List<FMG> ItemFMGS { get; private set; }
-        public List<FMG> MenuFMGS { get; private set; }
+        private List<FMG> ItemFMGS { get; set; }
+        private List<FMG> MenuFMGS { get; set; }
         private bool Remastered { get; set; }
 
-        public void RenameParamRows()
+        public void RenameParamRows(string exeDir)
         {
 #if DEBUG
-            ExeDir = @"F:\Steam\steamapps\common\DARK SOULS REMASTERED";
+            exeDir = @"F:\path\to\game\folder";
 #endif
-            if (File.Exists($@"{ExeDir}\DarkSoulsRemastered.exe"))
+            if (File.Exists($@"{exeDir}\DarkSoulsRemastered.exe"))
+            {
                 Remastered = true;
-            var gameParamFile = $@"{ExeDir}\param\GameParam\GameParam.parambnd{(Remastered ? ".dcx" : "")}";
-            var paramDefFile = $@"{ExeDir}\paramdef\paramdef.paramdefbnd{(Remastered ? ".dcx" : "")}";
-            var itemFMGFile = $@"{ExeDir}\msg\ENGLISH\item.msgbnd{(Remastered ? ".dcx" : "")}";
-            var menuFMGFile = $@"{ExeDir}\msg\ENGLISH\menu.msgbnd{(Remastered ? ".dcx" : "")}";
+                Console.WriteLine("Patching DSR Files");
+            }
+
+            var dcx = Remastered ? ".dcx" : "";
+            var gameParamFile = $@"{exeDir}\param\GameParam\GameParam.parambnd{dcx}";
+            var paramDefFile = $@"{exeDir}\paramdef\paramdef.paramdefbnd{dcx}";
+            var itemFMGFile = $@"{exeDir}\msg\ENGLISH\item.msgbnd{dcx}";
+            var menuFMGFile = $@"{exeDir}\msg\ENGLISH\menu.msgbnd{dcx}";
             var paramBND = BND3.Read(gameParamFile);
             var paramDefBND = BND3.Read(paramDefFile);
             var itemFMGBND = BND3.Read(itemFMGFile);
@@ -31,11 +36,13 @@ namespace FMG2ParamName
             var paramDefs = new List<PARAMDEF>();
             var paramList = new List<PARAM>();
 
+            Console.WriteLine("Backing up GameParam file");
             if (!File.Exists($@"{gameParamFile}.bak"))
                 File.Copy(gameParamFile, $@"{gameParamFile}.bak");
 
             if (!Remastered)
             {
+                Console.WriteLine("Backing up msgbnd files");
                 if (!File.Exists($@"{gameParamFile}.bak"))
                     File.Copy(gameParamFile, $@"{gameParamFile}.bak");
                 if (!File.Exists($@"{gameParamFile}.bak"))
@@ -44,17 +51,23 @@ namespace FMG2ParamName
 
             ReadFMGs(itemFMGBND, menuFMGBND);
             if (!Remastered)
+            {
+                Console.WriteLine("Renaming FMG files");
                 RenameFMGs(itemFMGBND, menuFMGBND);
+            }
 
+            Console.WriteLine("Renaming Param Rows from FMG files");
             ReadParams(paramBND, paramDefBND, paramDefs, paramList);
             WriteParamBytes(paramBND);
 
             if (!Remastered)
             {
+                Console.WriteLine("Writing FMGs");
                 itemFMGBND.Write(itemFMGFile);
                 menuFMGBND.Write(menuFMGFile);
             }
-            
+
+            Console.WriteLine("Writing GameParam File");
             paramBND.Write(gameParamFile);
         }
 
@@ -140,6 +153,14 @@ namespace FMG2ParamName
             menuFMGBND.Files[38].Name = $@"{path}\Menu text 9.fmg";
         }
 
+        PARAM EQUIP_PARAM_PROTECTOR_ST;
+        PARAM EQUIP_PARAM_WEAPON_ST;
+        PARAM EQUIP_PARAM_GOODS_ST;
+        PARAM MAGIC_PARAM_ST;
+        PARAM EQUIP_PARAM_ACCESSORY_ST;
+        PARAM TALK_PARAM_ST;
+        PARAM CHARACTER_INIT_PARAM;
+
         private void ReadParams(IBinder paramBND, IBinder paramDefBND, List<PARAMDEF> paramDefs, List<PARAM> paramList)
         {
             foreach (var item in paramBND.Files)
@@ -198,18 +219,6 @@ namespace FMG2ParamName
                 }
             }
         }
-
-        
-
-        PARAM EQUIP_PARAM_PROTECTOR_ST;
-        PARAM EQUIP_PARAM_WEAPON_ST;
-        PARAM EQUIP_PARAM_GOODS_ST;
-        PARAM MAGIC_PARAM_ST;
-        PARAM EQUIP_PARAM_ACCESSORY_ST;
-        PARAM TALK_PARAM_ST;
-        PARAM CHARACTER_INIT_PARAM;
-
-        
 
         private void SortArmors(PARAM equipProParam)
         {
