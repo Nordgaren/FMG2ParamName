@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace FMG2ParamName
 {
-    class DarkSouls1
+    class DarkSouls3
     {
         private List<FMG> ItemFMGS { get; set; }
         private List<FMG> MenuFMGS { get; set; }
@@ -15,6 +15,7 @@ namespace FMG2ParamName
 
         public void Translate(string exeDir)
         {
+            throw new NotImplementedException();
 #if DEBUG
             exeDir = @"F:\path\to\game\folder";
 #endif
