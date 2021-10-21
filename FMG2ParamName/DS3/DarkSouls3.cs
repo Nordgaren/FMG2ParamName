@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace FMG2ParamName
 {
@@ -15,18 +16,22 @@ namespace FMG2ParamName
 
         public void PatchFiles(string exeDir, bool modFolder)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
 #if DEBUG
-            exeDir = @"F:\path\to\game\folder";
+            exeDir = @"F:\Steam\steamapps\common\DARK SOULS III\Game\map";
 #endif
-            
+            //var paramdefFolder = @"F:\Steam\steamapps\common\DARK SOULS III\Game\paramdefs";
 
-            var gameParamFile = $@"{exeDir}\param\GameParam\GameParam.parambnd";
-            var paramDefFile = $@"{exeDir}\paramdef\paramdef.paramdefbnd";
+            //var compression = DCX.Type.DCX_DFLT_10000_44_9;
+            //Utility.MakeParamDefBnd(paramdefFolder, compression);
+            var strem = new FileStream(@"F:\Steam\steamapps\common\DARK SOULS III\Game\Data0.bhd", FileMode.Open);
+            var lol = BHD5.Read(strem , BHD5.Game.DarkSouls3);
+            var gameParamFile = $@"{exeDir}\param\gameparam\gameparam_dlc2.parambnd.dcx";
+            var paramDefFile = Utility.GetEmbededResource("FMG2ParamName.DS3.paramdef.paramdefbnd.dcx");
             var itemFMGFile = $@"{exeDir}\msg\ENGLISH\item.msgbnd";
             var menuFMGFile = $@"{exeDir}\msg\ENGLISH\menu.msgbnd";
             var paramBND = BND3.Read(gameParamFile);
-            var paramDefBND = BND3.Read(paramDefFile);
+            var paramDefBND = BND4.Read(paramDefFile);
             var itemFMGBND = BND3.Read(itemFMGFile);
             var menuFMGBND = BND3.Read(menuFMGFile);
             var paramDefs = new List<PARAMDEF>();
@@ -66,6 +71,8 @@ namespace FMG2ParamName
             Console.WriteLine("Writing GameParam File");
             paramBND.Write(gameParamFile);
         }
+
+        
 
         private void ReadFMGs(IBinder itemFMGBND, IBinder menuFMGBND)
         {

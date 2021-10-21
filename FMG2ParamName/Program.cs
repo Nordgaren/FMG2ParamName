@@ -10,6 +10,9 @@ namespace FMG2ParamName
 
         static void Main(string[] args)
         {
+#if DEBUG
+            new DarkSouls3().PatchFiles("" ,false);
+#endif
             if (File.Exists($@"{ExeDir}\DARKSOULS.exe"))
             {
                 Console.WriteLine("Patching Dark Souls PTDE files");

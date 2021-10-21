@@ -17,7 +17,7 @@ namespace FMG2ParamName
         {
             Remastered = remastered;
 #if DEBUG
-            exeDir = @"F:\path\to\game\folder";
+            exeDir = @"F:\Steam\steamapps\common\DARK SOULS REMASTERED";
 #endif
             
 
