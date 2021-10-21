@@ -11,25 +11,20 @@ namespace FMG2ParamName
     {
         private List<FMG> ItemFMGS { get; set; }
         private List<FMG> MenuFMGS { get; set; }
-        private bool Remastered { get; set; }
+        private bool ModFolder { get; set; }
 
-        public void Translate(string exeDir)
+        public void PatchFiles(string exeDir, bool modFolder)
         {
             throw new NotImplementedException();
 #if DEBUG
             exeDir = @"F:\path\to\game\folder";
 #endif
-            if (File.Exists($@"{exeDir}\DarkSoulsRemastered.exe"))
-            {
-                Remastered = true;
-                Console.WriteLine("Patching DSR Files");
-            }
+            
 
-            var dcx = Remastered ? ".dcx" : "";
-            var gameParamFile = $@"{exeDir}\param\GameParam\GameParam.parambnd{dcx}";
-            var paramDefFile = $@"{exeDir}\paramdef\paramdef.paramdefbnd{dcx}";
-            var itemFMGFile = $@"{exeDir}\msg\ENGLISH\item.msgbnd{dcx}";
-            var menuFMGFile = $@"{exeDir}\msg\ENGLISH\menu.msgbnd{dcx}";
+            var gameParamFile = $@"{exeDir}\param\GameParam\GameParam.parambnd";
+            var paramDefFile = $@"{exeDir}\paramdef\paramdef.paramdefbnd";
+            var itemFMGFile = $@"{exeDir}\msg\ENGLISH\item.msgbnd";
+            var menuFMGFile = $@"{exeDir}\msg\ENGLISH\menu.msgbnd";
             var paramBND = BND3.Read(gameParamFile);
             var paramDefBND = BND3.Read(paramDefFile);
             var itemFMGBND = BND3.Read(itemFMGFile);
@@ -41,7 +36,7 @@ namespace FMG2ParamName
             if (!File.Exists($@"{gameParamFile}.bak"))
                 File.Copy(gameParamFile, $@"{gameParamFile}.bak");
 
-            if (!Remastered)
+            if (!ModFolder)
             {
                 Console.WriteLine("Backing up msgbnd files");
                 if (!File.Exists($@"{gameParamFile}.bak"))
@@ -51,7 +46,7 @@ namespace FMG2ParamName
             }
 
             ReadFMGs(itemFMGBND, menuFMGBND);
-            if (!Remastered)
+            if (!ModFolder)
             {
                 Console.WriteLine("Renaming FMG files");
                 RenameFMGs(itemFMGBND, menuFMGBND);
@@ -61,7 +56,7 @@ namespace FMG2ParamName
             ReadParams(paramBND, paramDefBND, paramDefs, paramList);
             WriteParamBytes(paramBND);
 
-            if (!Remastered)
+            if (!ModFolder)
             {
                 Console.WriteLine("Writing FMGs");
                 itemFMGBND.Write(itemFMGFile);
@@ -225,7 +220,7 @@ namespace FMG2ParamName
         {
             var armorNames = ItemFMGS[2].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!Remastered)
+            if (!ModFolder)
             {
                 foreach (var item in MenuFMGS[31].Entries)
                 {
@@ -252,7 +247,7 @@ namespace FMG2ParamName
         {
             var weaponNames = ItemFMGS[1].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!Remastered)
+            if (!ModFolder)
             {
                 foreach (var item in MenuFMGS[29].Entries)
                 {
@@ -279,7 +274,7 @@ namespace FMG2ParamName
         {
             var itemNames = ItemFMGS[0].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!Remastered)
+            if (!ModFolder)
             {
                 foreach (var item in MenuFMGS[25].Entries)
                 {
@@ -306,7 +301,7 @@ namespace FMG2ParamName
         {
             var spellNames = ItemFMGS[4].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!Remastered)
+            if (!ModFolder)
             {
                 foreach (var item in MenuFMGS[25].Entries)
                 {
@@ -332,7 +327,7 @@ namespace FMG2ParamName
         {
             var ringNames = ItemFMGS[3].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!Remastered)
+            if (!ModFolder)
             {
                 foreach (var item in MenuFMGS[27].Entries)
                 {
@@ -358,7 +353,7 @@ namespace FMG2ParamName
         {
             var talkNames = MenuFMGS[0].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!Remastered)
+            if (!ModFolder)
             {
                 foreach (var item in MenuFMGS[18].Entries)
                 {

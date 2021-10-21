@@ -10,11 +10,30 @@ namespace FMG2ParamName
 
         static void Main(string[] args)
         {
-            if (File.Exists($@"{ExeDir}\DARKSOULS.exe") || File.Exists($@"{ExeDir}\DarkSoulsRemastered.exe"))
-                new DarkSouls1().Translate(ExeDir);
+            if (File.Exists($@"{ExeDir}\DARKSOULS.exe"))
+            {
+                Console.WriteLine("Patching Dark Souls PTDE files");
+                new DarkSouls1().PatchFiles(ExeDir, false);
+            }
 
-            if (File.Exists($@"{ExeDir}\DarkSoulsIII.exe") || File.Exists($@"{ExeDir}..\..\DarkSoulsIII.exe"))
-                new DarkSouls3().Translate(ExeDir);
+            if (File.Exists($@"{ExeDir}\DarkSoulsRemastered.exe"))
+            {
+                Console.WriteLine("Patching Dark Souls Remastered files");
+                new DarkSouls1().PatchFiles(ExeDir, true);
+            }
+            
+
+            if (File.Exists($@"{ExeDir}\DarkSoulsIII.exe"))
+            {
+                Console.WriteLine("Patching Dark Souls 3 files");
+                new DarkSouls3().PatchFiles(ExeDir, false);
+            }
+
+            if (File.Exists($@"{ExeDir}..\..\DarkSoulsIII.exe"))
+            {
+                Console.WriteLine("Patching Dark Souls 3 files from Mod Folder");
+                new DarkSouls3().PatchFiles(ExeDir, true);
+            }
 
             Console.WriteLine("Patch Complete");
             Console.ReadLine();

@@ -13,16 +13,13 @@ namespace FMG2ParamName
         private List<FMG> MenuFMGS { get; set; }
         private bool Remastered { get; set; }
 
-        public void Translate(string exeDir)
+        public void PatchFiles(string exeDir, bool remastered)
         {
+            Remastered = remastered;
 #if DEBUG
             exeDir = @"F:\path\to\game\folder";
 #endif
-            if (File.Exists($@"{exeDir}\DarkSoulsRemastered.exe"))
-            {
-                Remastered = true;
-                Console.WriteLine("Patching DSR Files");
-            }
+            
 
             var dcx = Remastered ? ".dcx" : "";
             var gameParamFile = $@"{exeDir}\param\GameParam\GameParam.parambnd{dcx}";
@@ -50,6 +47,7 @@ namespace FMG2ParamName
             }
 
             ReadFMGs(itemFMGBND, menuFMGBND);
+
             if (!Remastered)
             {
                 Console.WriteLine("Renaming FMG files");
@@ -58,6 +56,7 @@ namespace FMG2ParamName
 
             Console.WriteLine("Renaming Param Rows from FMG files");
             ReadParams(paramBND, paramDefBND, paramDefs, paramList);
+
             WriteParamBytes(paramBND);
 
             if (!Remastered)
