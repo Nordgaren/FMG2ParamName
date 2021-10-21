@@ -11,16 +11,20 @@ namespace FMG2ParamName
         public string ExeDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
         public List<FMG> ItemFMGS { get; private set; }
         public List<FMG> MenuFMGS { get; private set; }
+        private bool Remastered { get; set; }
 
         public void RenameParamRows()
         {
 #if DEBUG
-            ExeDir = @"F:\Dark Souls Mod Stuff\Vanilla PTDE Translated\DATA";
+            ExeDir = @"F:\Steam\steamapps\common\DARK SOULS REMASTERED";
 #endif
-            var gameParamFile = $@"{ExeDir}\param\GameParam\GameParam.parambnd";
-            var paramDefFile = $@"{ExeDir}\paramdef\paramdef.paramdefbnd";
-            var itemFMGFile = $@"{ExeDir}\msg\ENGLISH\item.msgbnd";
-            var menuFMGFile = $@"{ExeDir}\msg\ENGLISH\menu.msgbnd";
+            if (File.Exists($@"{ExeDir}\DarkSoulsRemastered.exe"))
+                Remastered = true;
+
+            var gameParamFile = $@"{ExeDir}\param\GameParam\GameParam.parambnd{(Remastered ? ".dcx" : "")}";
+            var paramDefFile = $@"{ExeDir}\paramdef\paramdef.paramdefbnd{(Remastered ? ".dcx" : "")}";
+            var itemFMGFile = $@"{ExeDir}\msg\ENGLISH\item.msgbnd{(Remastered ? ".dcx" : "")}";
+            var menuFMGFile = $@"{ExeDir}\msg\ENGLISH\menu.msgbnd{(Remastered ? ".dcx" : "")}";
             var paramBND = BND3.Read(gameParamFile);
             var paramDefBND = BND3.Read(paramDefFile);
             var itemFMGBND = BND3.Read(itemFMGFile);
@@ -31,13 +35,27 @@ namespace FMG2ParamName
             if (!File.Exists($@"{gameParamFile}.bak"))
                 File.Copy(gameParamFile, $@"{gameParamFile}.bak");
 
+            if (!Remastered)
+            {
+                if (!File.Exists($@"{gameParamFile}.bak"))
+                    File.Copy(gameParamFile, $@"{gameParamFile}.bak");
+                if (!File.Exists($@"{gameParamFile}.bak"))
+                    File.Copy(gameParamFile, $@"{gameParamFile}.bak");
+            }
+
             ReadFMGs(itemFMGBND, menuFMGBND);
-            RenameFMGs(itemFMGBND, menuFMGBND);
+            if (!Remastered)
+                RenameFMGs(itemFMGBND, menuFMGBND);
+
             ReadParams(paramBND, paramDefBND, paramDefs, paramList);
             WriteParamBytes(paramBND);
 
-            itemFMGBND.Write(itemFMGFile);
-            menuFMGBND.Write(menuFMGFile);
+            if (!Remastered)
+            {
+                itemFMGBND.Write(itemFMGFile);
+                menuFMGBND.Write(menuFMGFile);
+            }
+            
             paramBND.Write(gameParamFile);
         }
 
@@ -139,7 +157,9 @@ namespace FMG2ParamName
             {
                 var result = param.ApplyParamdefCarefully(paramDefs);
                 if (!result)
-                    Debug.WriteLine($"{param.ParamType} Did not apply!");
+                    foreach (var paramDef in paramDefs)
+                        if (paramDef.ParamType == param.ParamType)
+                            param.ApplyParamdef(paramDef);
             }
 
             foreach (var param in paramList)
@@ -182,7 +202,7 @@ namespace FMG2ParamName
 
         
 
-            PARAM EQUIP_PARAM_PROTECTOR_ST;
+        PARAM EQUIP_PARAM_PROTECTOR_ST;
         PARAM EQUIP_PARAM_WEAPON_ST;
         PARAM EQUIP_PARAM_GOODS_ST;
         PARAM MAGIC_PARAM_ST;
@@ -196,12 +216,16 @@ namespace FMG2ParamName
         {
             var armorNames = ItemFMGS[2].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            foreach (var item in MenuFMGS[31].Entries)
+            if (!Remastered)
             {
-                if (!armorNames.ContainsKey(item.ID))
-                    armorNames.Add(item.ID, item.Text);
-                else if (string.IsNullOrWhiteSpace(armorNames[item.ID]))
-                    armorNames[item.ID] = item.Text;
+                foreach (var item in MenuFMGS[31].Entries)
+                {
+                    if (!armorNames.ContainsKey(item.ID))
+                        armorNames.Add(item.ID, item.Text);
+                    else if (string.IsNullOrWhiteSpace(armorNames[item.ID]))
+                        armorNames[item.ID] = item.Text;
+                }
+
             }
 
             foreach (var armor in equipProParam.Rows)
@@ -218,12 +242,16 @@ namespace FMG2ParamName
         private void SortWeapons(PARAM equipWepParam)
         {
             var weaponNames = ItemFMGS[1].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
-            foreach (var item in MenuFMGS[29].Entries)
+
+            if (!Remastered)
             {
-                if (!weaponNames.ContainsKey(item.ID))
-                    weaponNames.Add(item.ID, item.Text);
-                else if (string.IsNullOrWhiteSpace(weaponNames[item.ID]))
-                    weaponNames[item.ID] = item.Text;
+                foreach (var item in MenuFMGS[29].Entries)
+                {
+                    if (!weaponNames.ContainsKey(item.ID))
+                        weaponNames.Add(item.ID, item.Text);
+                    else if (string.IsNullOrWhiteSpace(weaponNames[item.ID]))
+                        weaponNames[item.ID] = item.Text;
+                }
             }
 
             foreach (var weapon in equipWepParam.Rows)
@@ -242,12 +270,15 @@ namespace FMG2ParamName
         {
             var itemNames = ItemFMGS[0].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            foreach (var item in MenuFMGS[25].Entries)
+            if (!Remastered)
             {
-                if (!itemNames.ContainsKey(item.ID))
-                    itemNames.Add(item.ID, item.Text);
-                else if (string.IsNullOrWhiteSpace(itemNames[item.ID]))
-                    itemNames[item.ID] = item.Text;
+                foreach (var item in MenuFMGS[25].Entries)
+                {
+                    if (!itemNames.ContainsKey(item.ID))
+                        itemNames.Add(item.ID, item.Text);
+                    else if (string.IsNullOrWhiteSpace(itemNames[item.ID]))
+                        itemNames[item.ID] = item.Text;
+                }
             }
 
             foreach (var item in goodsParam.Rows)
@@ -266,12 +297,15 @@ namespace FMG2ParamName
         {
             var spellNames = ItemFMGS[4].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            foreach (var item in MenuFMGS[25].Entries)
+            if (!Remastered)
             {
-                if (!spellNames.ContainsKey(item.ID))
-                    spellNames.Add(item.ID, item.Text);
-                else if (string.IsNullOrWhiteSpace(spellNames[item.ID]))
-                    spellNames[item.ID] = item.Text;
+                foreach (var item in MenuFMGS[25].Entries)
+                {
+                    if (!spellNames.ContainsKey(item.ID))
+                        spellNames.Add(item.ID, item.Text);
+                    else if (string.IsNullOrWhiteSpace(spellNames[item.ID]))
+                        spellNames[item.ID] = item.Text;
+                }
             }
 
             foreach (var spell in magicParam.Rows)
@@ -289,13 +323,16 @@ namespace FMG2ParamName
         {
             var ringNames = ItemFMGS[3].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            foreach (var item in MenuFMGS[27].Entries)
+            if (!Remastered)
             {
-                if (!ringNames.ContainsKey(item.ID))
-                    ringNames.Add(item.ID, item.Text);
-                else if (string.IsNullOrWhiteSpace(ringNames[item.ID]))
-                    ringNames[item.ID] = item.Text;
-            }
+                foreach (var item in MenuFMGS[27].Entries)
+                {
+                    if (!ringNames.ContainsKey(item.ID))
+                        ringNames.Add(item.ID, item.Text);
+                    else if (string.IsNullOrWhiteSpace(ringNames[item.ID]))
+                        ringNames[item.ID] = item.Text;
+                }
+            }                
 
             foreach (var ring in accessoryParam.Rows)
             {
@@ -312,13 +349,17 @@ namespace FMG2ParamName
         {
             var talkNames = MenuFMGS[0].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            foreach (var item in MenuFMGS[18].Entries)
+            if (!Remastered)
             {
-                if (!talkNames.ContainsKey(item.ID))
-                    talkNames.Add(item.ID, item.Text);
-                else if (string.IsNullOrWhiteSpace(talkNames[item.ID]))
-                    talkNames[item.ID] = item.Text;
+                foreach (var item in MenuFMGS[18].Entries)
+                {
+                    if (!talkNames.ContainsKey(item.ID))
+                        talkNames.Add(item.ID, item.Text);
+                    else if (string.IsNullOrWhiteSpace(talkNames[item.ID]))
+                        talkNames[item.ID] = item.Text;
+                }
             }
+                
 
             foreach (var armor in talkParam.Rows)
             {
