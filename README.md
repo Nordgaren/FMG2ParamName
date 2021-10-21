@@ -3,4 +3,6 @@
 
 Still a WIP
 
-Requires latest [SoulsFormats](https://github.com/JKAnderson/SoulsFormats) by [TKGP](https://github.com/JKAnderson/) to run
+If you build this yourself, just replace the path for ExeDir with whatever path you wanna use in the `#if DEBUG` statement
+
+Requires latest [SoulsFormats](https://github.com/JKAnderson/SoulsFormats) by [TKGP](https://github.com/JKAnderson/) to build.
