@@ -20,7 +20,6 @@ namespace FMG2ParamName
 #endif
             if (File.Exists($@"{ExeDir}\DarkSoulsRemastered.exe"))
                 Remastered = true;
-
             var gameParamFile = $@"{ExeDir}\param\GameParam\GameParam.parambnd{(Remastered ? ".dcx" : "")}";
             var paramDefFile = $@"{ExeDir}\paramdef\paramdef.paramdefbnd{(Remastered ? ".dcx" : "")}";
             var itemFMGFile = $@"{ExeDir}\msg\ENGLISH\item.msgbnd{(Remastered ? ".dcx" : "")}";
@@ -158,7 +157,7 @@ namespace FMG2ParamName
                 var result = param.ApplyParamdefCarefully(paramDefs);
                 if (!result)
                     foreach (var paramDef in paramDefs)
-                        if (paramDef.ParamType == param.ParamType)
+                        if (paramDef.ParamType == param.ParamType && (param.DetectedSize == -1 || param.DetectedSize == paramDef.GetRowSize()))
                             param.ApplyParamdef(paramDef);
             }
 
