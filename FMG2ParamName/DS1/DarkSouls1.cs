@@ -34,16 +34,16 @@ namespace FMG2ParamName
             var paramList = new List<PARAM>();
 
             Console.WriteLine("Backing up GameParam file");
-            if (!File.Exists($@"{gameParamFile}.bak"))
-                File.Copy(gameParamFile, $@"{gameParamFile}.bak");
+            if (!File.Exists($@"{gameParamFile}.FMG2PBak"))
+                File.Copy(gameParamFile, $@"{gameParamFile}.FMG2PBak");
 
             if (!Remastered)
             {
                 Console.WriteLine("Backing up msgbnd files");
-                if (!File.Exists($@"{itemFMGFile}.bak"))
-                    File.Copy(itemFMGFile, $@"{itemFMGFile}.bak");
-                if (!File.Exists($@"{menuFMGFile}.bak"))
-                    File.Copy(menuFMGFile, $@"{menuFMGFile}.bak");
+                if (!File.Exists($@"{itemFMGFile}.FMG2PBak"))
+                    File.Copy(itemFMGFile, $@"{itemFMGFile}.FMG2PBak");
+                if (!File.Exists($@"{menuFMGFile}.FMG2PBak"))
+                    File.Copy(menuFMGFile, $@"{menuFMGFile}.FMG2PBak");
             }
 
             ReadFMGs(itemFMGBND, menuFMGBND);

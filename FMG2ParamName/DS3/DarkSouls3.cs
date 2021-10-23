@@ -12,46 +12,59 @@ namespace FMG2ParamName
     {
         private List<FMG> ItemFMGS { get; set; }
         private List<FMG> MenuFMGS { get; set; }
-        private bool ModFolder { get; set; }
 
-        public void PatchFiles(string exeDir, bool modFolder)
+        public void PatchFiles(string exeDir)
         {
-            //throw new NotImplementedException();
 #if DEBUG
             exeDir = @"F:\Steam\steamapps\common\DARK SOULS III\Game\Mod";
 #endif
-            //var paramdefFolder = @"F:\Steam\steamapps\common\DARK SOULS III\Game\paramdefs";
 
+            //var paramdefFolder = @"F:\Steam\steamapps\common\DARK SOULS III\Game\paramdefs";
             //var compression = DCX.Type.DCX_DFLT_10000_44_9;
             //Utility.MakeParamDefBnd(paramdefFolder, compression);
-            var gameParamFile = $@"{exeDir}\param\gameparam\gameparam_dlc2.parambnd.dcx";
+            var patchItemFMGs = true;
+            var patchMenuFMGs = true;;
+
+
+            var gameParamFile = $@"F:\Steam\steamapps\common\DARK SOULS III\Game\Mod\param\gameparam\gameparam_dlc2.parambnd.dcx";
             var paramDefFile = Utility.GetEmbededResource("FMG2ParamName.DS3.paramdef.paramdefbnd.dcx");
             var itemFMGFile = $@"{exeDir}\msg\engus\item_dlc2.msgbnd.dcx";
             if (!File.Exists(itemFMGFile))
+            {
+                patchItemFMGs = false;
                 itemFMGFile = $@"{exeDir}..\..\msg\engus\item_dlc2.msgbnd.dcx";
-            var itemFMGBND = BND4.Read(itemFMGFile);
-            var menuFMGFile = $@"{exeDir}\msg\ENGLISH\menu.msgbnd";
+            }
+            var menuFMGFile = $@"{exeDir}\msg\engus\menu_dlc2.msgbnd.dcx";
+            if (!File.Exists(menuFMGFile))
+            {
+                patchMenuFMGs = false;
+                menuFMGFile = $@"{exeDir}..\..\msg\engus\menu_dlc2.msgbnd.dcx";
+            }
             var paramBND = BND4.Read(gameParamFile);
             var paramDefBND = BND4.Read(paramDefFile);
-            var menuFMGBND = BND3.Read(menuFMGFile);
+            var itemFMGBND = BND4.Read(itemFMGFile);
+            var menuFMGBND = BND4.Read(menuFMGFile);
             var paramDefs = new List<PARAMDEF>();
             var paramList = new List<PARAM>();
 
             Console.WriteLine("Backing up GameParam file");
-            if (!File.Exists($@"{gameParamFile}.bak"))
-                File.Copy(gameParamFile, $@"{gameParamFile}.bak");
+            if (!File.Exists($@"{gameParamFile}.FMG2PBak"))
+                File.Copy(gameParamFile, $@"{gameParamFile}.FMG2PBak");
 
-            if (!ModFolder)
+            if (patchItemFMGs || patchMenuFMGs)
             {
                 Console.WriteLine("Backing up msgbnd files");
-                if (!File.Exists($@"{gameParamFile}.bak"))
-                    File.Copy(gameParamFile, $@"{gameParamFile}.bak");
-                if (!File.Exists($@"{gameParamFile}.bak"))
-                    File.Copy(gameParamFile, $@"{gameParamFile}.bak");
+                if (patchItemFMGs)
+                    if (!File.Exists($@"{itemFMGFile}.FMG2PBak"))
+                        File.Copy(itemFMGFile, $@"{itemFMGFile}.FMG2PBak");
+
+                if (patchMenuFMGs)
+                    if (!File.Exists($@"{menuFMGFile}.FMG2PBak"))
+                        File.Copy(menuFMGFile, $@"{menuFMGFile}.FMG2PBak");
             }
 
             ReadFMGs(itemFMGBND, menuFMGBND);
-            if (!ModFolder)
+            if (patchItemFMGs || patchMenuFMGs)
             {
                 Console.WriteLine("Renaming FMG files");
                 RenameFMGs(itemFMGBND, menuFMGBND);
@@ -61,11 +74,14 @@ namespace FMG2ParamName
             ReadParams(paramBND, paramDefBND, paramDefs, paramList);
             WriteParamBytes(paramBND);
 
-            if (!ModFolder)
+            if (patchItemFMGs || patchMenuFMGs)
             {
                 Console.WriteLine("Writing FMGs");
-                itemFMGBND.Write(itemFMGFile);
-                menuFMGBND.Write(menuFMGFile);
+                if (patchItemFMGs)
+                    itemFMGBND.Write(itemFMGFile);
+
+                if (patchMenuFMGs)
+                    menuFMGBND.Write(menuFMGFile);
             }
 
             Console.WriteLine("Writing GameParam File");
@@ -93,67 +109,91 @@ namespace FMG2ParamName
         {
             var path = Path.GetDirectoryName(itemFMGBND.Files[0].Name);
 
-            itemFMGBND.Files[0].Name = $@"{path}\Goods name.fmg";
-            itemFMGBND.Files[1].Name = $@"{path}\Weapon name.fmg";
-            itemFMGBND.Files[2].Name = $@"{path}\Armor name.fmg";
-            itemFMGBND.Files[3].Name = $@"{path}\Accessory name.fmg";
-            itemFMGBND.Files[4].Name = $@"{path}\Magic name.fmg";
-            itemFMGBND.Files[5].Name = $@"{path}\Test.fmg";
-            itemFMGBND.Files[6].Name = $@"{path}\For Test.fmg";
-            itemFMGBND.Files[7].Name = $@"{path}\For Test 2.fmg";
-            itemFMGBND.Files[8].Name = $@"{path}\NPC name.fmg";
-            itemFMGBND.Files[9].Name = $@"{path}\Area name.fmg";
-            itemFMGBND.Files[10].Name = $@"{path}\Goods short description.fmg";
-            itemFMGBND.Files[11].Name = $@"{path}\Weapon Categories.fmg";
-            itemFMGBND.Files[12].Name = $@"{path}\Weapon and Armor blank category entries.fmg";
-            itemFMGBND.Files[13].Name = $@"{path}\Accessory short description.fmg";
-            itemFMGBND.Files[14].Name = $@"{path}\Goods long description.fmg";
-            itemFMGBND.Files[15].Name = $@"{path}\Weapon long description.fmg";
-            itemFMGBND.Files[16].Name = $@"{path}\Armor long description.fmg";
-            itemFMGBND.Files[17].Name = $@"{path}\Accessory long description.fmg";
-            itemFMGBND.Files[18].Name = $@"{path}\Magic short description.fmg";
-            itemFMGBND.Files[19].Name = $@"{path}\Magic long description.fmg";
+            itemFMGBND.Files[0].Name = $@"{path}\Title - Goods.fmg";
+            itemFMGBND.Files[1].Name = $@"{path}\Title - Weapons.fmg";
+            itemFMGBND.Files[2].Name = $@"{path}\Title - Armor.fmg";
+            itemFMGBND.Files[3].Name = $@"{path}\Title - Rings.fmg";
+            itemFMGBND.Files[4].Name = $@"{path}\Title - Spells.fmg";
+            itemFMGBND.Files[5].Name = $@"{path}\Title - Characters.fmg";
+            itemFMGBND.Files[6].Name = $@"{path}\Title - Locations.fmg";
+            itemFMGBND.Files[7].Name = $@"{path}\Summary - Goods.fmg";
+            itemFMGBND.Files[8].Name = $@"{path}\Summary - Weapons.fmg";
+            itemFMGBND.Files[9].Name = $@"{path}\Summary - Armor.fmg";
+            itemFMGBND.Files[10].Name = $@"{path}\Summary - Rings.fmg";
+            itemFMGBND.Files[11].Name = $@"{path}\Description - Goods.fmg";
+            itemFMGBND.Files[12].Name = $@"{path}\Description - Weapons.fmg";
+            itemFMGBND.Files[13].Name = $@"{path}\Description - Armor.fmg";
+            itemFMGBND.Files[14].Name = $@"{path}\Description - Rings.fmg";
+            itemFMGBND.Files[15].Name = $@"{path}\Summary - Spells.fmg";
+            itemFMGBND.Files[16].Name = $@"{path}\Description - Spells.fmg";
+            itemFMGBND.Files[17].Name = $@"{path}\Title - Goods - DLC1.fmg";
+            itemFMGBND.Files[18].Name = $@"{path}\Title - Weapons - DLC1.fmg";
+            itemFMGBND.Files[19].Name = $@"{path}\Title - Armor - DLC1.fmg";
+            itemFMGBND.Files[20].Name = $@"{path}\Title - Rings - DLC1.fmg";
+            itemFMGBND.Files[21].Name = $@"{path}\Title - Spells - DLC1.fmg";
+            itemFMGBND.Files[22].Name = $@"{path}\Title - Characters - DLC1.fmg";
+            itemFMGBND.Files[23].Name = $@"{path}\Title - Locations - DLC1.fmg";
+            itemFMGBND.Files[24].Name = $@"{path}\Summary - Goods - DLC1.fmg";
+            itemFMGBND.Files[25].Name = $@"{path}\Summary - Rings - DLC1.fmg";
+            itemFMGBND.Files[26].Name = $@"{path}\Description - Goods - DLC1.fmg";
+            itemFMGBND.Files[27].Name = $@"{path}\Description - Weapons - DLC1.fmg";
+            itemFMGBND.Files[28].Name = $@"{path}\Description - Armor - DLC1.fmg";
+            itemFMGBND.Files[29].Name = $@"{path}\Description - Rings - DLC1.fmg";
+            itemFMGBND.Files[30].Name = $@"{path}\Summary - Spells - DLC1.fmg";
+            itemFMGBND.Files[31].Name = $@"{path}\Description - Spells - DLC1.fmg";
+            itemFMGBND.Files[32].Name = $@"{path}\Title - Goods - DLC2.fmg";
+            itemFMGBND.Files[33].Name = $@"{path}\Title - Weapons - DLC2.fmg";
+            itemFMGBND.Files[34].Name = $@"{path}\Title - Armor - DLC2.fmg";
+            itemFMGBND.Files[35].Name = $@"{path}\Title - Rings - DLC2.fmg";
+            itemFMGBND.Files[36].Name = $@"{path}\Title - Spells - DLC2.fmg";
+            itemFMGBND.Files[37].Name = $@"{path}\Title - Characters - DLC2.fmg";
+            itemFMGBND.Files[38].Name = $@"{path}\Title - Locations - DLC2.fmg";
+            itemFMGBND.Files[39].Name = $@"{path}\Summary - Goods - DLC2.fmg";
+            itemFMGBND.Files[40].Name = $@"{path}\Summary - Rings - DLC2.fmg";
+            itemFMGBND.Files[41].Name = $@"{path}\Description - Goods - DLC2.fmg";
+            itemFMGBND.Files[42].Name = $@"{path}\Description - Weapons - DLC2.fmg";
+            itemFMGBND.Files[43].Name = $@"{path}\Description - Armor - DLC2.fmg";
+            itemFMGBND.Files[44].Name = $@"{path}\Description - Rings - DLC2.fmg";
+            itemFMGBND.Files[45].Name = $@"{path}\Summary - Spells - DLC2.fmg";
+            itemFMGBND.Files[46].Name = $@"{path}\Description - Spells - DLC2.fmg";
 
-
-            menuFMGBND.Files[0].Name = $@"{path}\NPC dialogue.fmg";
-            menuFMGBND.Files[1].Name = $@"{path}\Soapstone guidance message.fmg";
-            menuFMGBND.Files[2].Name = $@"{path}\Intro cinematic subtitle.fmg";
-            menuFMGBND.Files[3].Name = $@"{path}\In-game prompts and NPC menu text.fmg";
-            menuFMGBND.Files[4].Name = $@"{path}\Menu labels and Emote name.fmg";
-            menuFMGBND.Files[5].Name = $@"{path}\Menu text 1.fmg";
-            menuFMGBND.Files[6].Name = $@"{path}\Menu text 2.fmg";
-            menuFMGBND.Files[7].Name = $@"{path}\Menu text 3.fmg";
-            menuFMGBND.Files[8].Name = $@"{path}\Unknown.fmg";
-            menuFMGBND.Files[9].Name = $@"{path}\Menu prompt.fmg";
-            menuFMGBND.Files[10].Name = $@"{path}\Unknown Japanese.fmg";
-            menuFMGBND.Files[11].Name = $@"{path}\Unknown misc entries.fmg";
-            menuFMGBND.Files[12].Name = $@"{path}\Unknown steam stuff.fmg";
-            menuFMGBND.Files[13].Name = $@"{path}\Menu warnings and text.fmg";
-            menuFMGBND.Files[14].Name = $@"{path}\Online and DLC item description.fmg";
-            menuFMGBND.Files[15].Name = $@"{path}\Online message text.fmg";
-            menuFMGBND.Files[16].Name = $@"{path}\Menu text 4.fmg";
-            menuFMGBND.Files[17].Name = $@"{path}\Menu text 5.fmg";
-            menuFMGBND.Files[18].Name = $@"{path}\NPC dialogue 2.fmg";
-            menuFMGBND.Files[19].Name = $@"{path}\DLC spell description.fmg";
-            menuFMGBND.Files[20].Name = $@"{path}\DLC seapon description.fmg";
-            menuFMGBND.Files[21].Name = $@"{path}\DLC multiplayer message.fmg";
-            menuFMGBND.Files[22].Name = $@"{path}\DLC armor description.fmg";
-            menuFMGBND.Files[23].Name = $@"{path}\DLC ring description.fmg";
-            menuFMGBND.Files[24].Name = $@"{path}\DLC item description.fmg";
-            menuFMGBND.Files[25].Name = $@"{path}\DLC item name.fmg";
-            menuFMGBND.Files[26].Name = $@"{path}\Effect decription.fmg";
-            menuFMGBND.Files[27].Name = $@"{path}\DLC ring name.fmg";
-            menuFMGBND.Files[28].Name = $@"{path}\DLCand boss weapon category.fmg";
-            menuFMGBND.Files[29].Name = $@"{path}\DLC and boss weapon name.fmg";
-            menuFMGBND.Files[30].Name = $@"{path}\DLC null entries.fmg";
-            menuFMGBND.Files[31].Name = $@"{path}\DLC armor name.fmg";
-            menuFMGBND.Files[32].Name = $@"{path}\DLC magic name.fmg";
-            menuFMGBND.Files[33].Name = $@"{path}\DLC NPC name.fmg";
-            menuFMGBND.Files[34].Name = $@"{path}\DLC location name.fmg";
-            menuFMGBND.Files[35].Name = $@"{path}\Menu text 6.fmg";
-            menuFMGBND.Files[36].Name = $@"{path}\Menu text 7.fmg";
-            menuFMGBND.Files[37].Name = $@"{path}\Menu text 8.fmg";
-            menuFMGBND.Files[38].Name = $@"{path}\Menu text 9.fmg";
+            menuFMGBND.Files[0].Name = $@"{path}\Dialogue.fmg";
+            menuFMGBND.Files[1].Name = $@"{path}\Messages.fmg";
+            menuFMGBND.Files[2].Name = $@"{path}\Subtitles.fmg";
+            menuFMGBND.Files[3].Name = $@"{path}\Menu.fmg";
+            menuFMGBND.Files[4].Name = $@"{path}\Titles.fmg";
+            menuFMGBND.Files[5].Name = $@"{path}\Unk 3.fmg";
+            menuFMGBND.Files[6].Name = $@"{path}\Unk 2.fmg";
+            menuFMGBND.Files[7].Name = $@"{path}\Alerts.fmg";
+            menuFMGBND.Files[8].Name = $@"{path}\Prompts.fmg";
+            menuFMGBND.Files[9].Name = $@"{path}\Unk 4.fmg";
+            menuFMGBND.Files[10].Name = $@"{path}\Unk 5.fmg";
+            menuFMGBND.Files[11].Name = $@"{path}\Unk 1.fmg";
+            menuFMGBND.Files[12].Name = $@"{path}\FDP - Text 2.fmg";
+            menuFMGBND.Files[13].Name = $@"{path}\FDP - Text 3.fmg";
+            menuFMGBND.Files[14].Name = $@"{path}\FDP - Text.fmg";
+            menuFMGBND.Files[15].Name = $@"{path}\FDP - Text - PC.fmg";
+            menuFMGBND.Files[16].Name = $@"{path}\FDP - Menu.fmg";
+            menuFMGBND.Files[17].Name = $@"{path}\FDP - Text - PS4.fmg";
+            menuFMGBND.Files[18].Name = $@"{path}\FDP - Text - XB1.fmg";
+            menuFMGBND.Files[19].Name = $@"{path}\Dialogue - DLC1.fmg";
+            menuFMGBND.Files[20].Name = $@"{path}\Menu - DLC1.fmg";
+            menuFMGBND.Files[21].Name = $@"{path}\FDP - Text 2 - DLC1.fmg";
+            menuFMGBND.Files[22].Name = $@"{path}\FDP - Text 3 - DLC1.fmg";
+            menuFMGBND.Files[23].Name = $@"{path}\FDP - Text - DLC1 - PC.fmg";
+            menuFMGBND.Files[24].Name = $@"{path}\FDP - Menu - DLC1.fmg";
+            menuFMGBND.Files[25].Name = $@"{path}\FDP - Text - DLC1 - PS4.fmg";
+            menuFMGBND.Files[26].Name = $@"{path}\FDP - Text - DLC1 - XB1.fmg";
+            menuFMGBND.Files[27].Name = $@"{path}\Messages - DLC1.fmg";
+            menuFMGBND.Files[28].Name = $@"{path}\Dialogue - DLC2.fmg";
+            menuFMGBND.Files[29].Name = $@"{path}\Menu - DLC2.fmg";
+            menuFMGBND.Files[30].Name = $@"{path}\FDP - Text 2 - DLC2.fmg";
+            menuFMGBND.Files[31].Name = $@"{path}\FDP - Text 3 - DLC2.fmg";
+            menuFMGBND.Files[32].Name = $@"{path}\FDP - Text - DLC2 - PC.fmg";
+            menuFMGBND.Files[33].Name = $@"{path}\FDP - Menu - DLC2.fmg";
+            menuFMGBND.Files[34].Name = $@"{path}\FDP - Text - DLC2 - PS4.fmg";
+            menuFMGBND.Files[35].Name = $@"{path}\FDP - Text - DLC2 - XB1.fmg";
+            menuFMGBND.Files[36].Name = $@"{path}\Messages - DLC2.fmg";
         }
 
         PARAM EQUIP_PARAM_PROTECTOR_ST;
@@ -162,7 +202,6 @@ namespace FMG2ParamName
         PARAM MAGIC_PARAM_ST;
         PARAM EQUIP_PARAM_ACCESSORY_ST;
         PARAM TALK_PARAM_ST;
-        PARAM CHARACTER_INIT_PARAM;
 
         private void ReadParams(IBinder paramBND, IBinder paramDefBND, List<PARAMDEF> paramDefs, List<PARAM> paramList)
         {
@@ -213,10 +252,6 @@ namespace FMG2ParamName
                         TALK_PARAM_ST = param;
                         SortTalk(TALK_PARAM_ST);
                         break;
-                    case "CHARACTER_INIT_PARAM":
-                        CHARACTER_INIT_PARAM = param;
-                        SortClasses(CHARACTER_INIT_PARAM);
-                        break;
                     default:
                         break;
                 }
@@ -227,16 +262,20 @@ namespace FMG2ParamName
         {
             var armorNames = ItemFMGS[2].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!ModFolder)
+            foreach (var item in MenuFMGS[19].Entries)
             {
-                foreach (var item in MenuFMGS[31].Entries)
-                {
-                    if (!armorNames.ContainsKey(item.ID))
-                        armorNames.Add(item.ID, item.Text);
-                    else if (string.IsNullOrWhiteSpace(armorNames[item.ID]))
-                        armorNames[item.ID] = item.Text;
-                }
+                if (!armorNames.ContainsKey(item.ID))
+                    armorNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(armorNames[item.ID]))
+                    armorNames[item.ID] = item.Text;
+            }
 
+            foreach (var item in MenuFMGS[34].Entries)
+            {
+                if (!armorNames.ContainsKey(item.ID))
+                    armorNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(armorNames[item.ID]))
+                    armorNames[item.ID] = item.Text;
             }
 
             foreach (var armor in equipProParam.Rows)
@@ -254,15 +293,20 @@ namespace FMG2ParamName
         {
             var weaponNames = ItemFMGS[1].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!ModFolder)
+            foreach (var item in MenuFMGS[18].Entries)
             {
-                foreach (var item in MenuFMGS[29].Entries)
-                {
-                    if (!weaponNames.ContainsKey(item.ID))
-                        weaponNames.Add(item.ID, item.Text);
-                    else if (string.IsNullOrWhiteSpace(weaponNames[item.ID]))
-                        weaponNames[item.ID] = item.Text;
-                }
+                if (!weaponNames.ContainsKey(item.ID))
+                    weaponNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(weaponNames[item.ID]))
+                    weaponNames[item.ID] = item.Text;
+            }
+
+            foreach (var item in MenuFMGS[33].Entries)
+            {
+                if (!weaponNames.ContainsKey(item.ID))
+                    weaponNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(weaponNames[item.ID]))
+                    weaponNames[item.ID] = item.Text;
             }
 
             foreach (var weapon in equipWepParam.Rows)
@@ -281,15 +325,20 @@ namespace FMG2ParamName
         {
             var itemNames = ItemFMGS[0].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!ModFolder)
+            foreach (var item in MenuFMGS[17].Entries)
             {
-                foreach (var item in MenuFMGS[25].Entries)
-                {
-                    if (!itemNames.ContainsKey(item.ID))
-                        itemNames.Add(item.ID, item.Text);
-                    else if (string.IsNullOrWhiteSpace(itemNames[item.ID]))
-                        itemNames[item.ID] = item.Text;
-                }
+                if (!itemNames.ContainsKey(item.ID))
+                    itemNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(itemNames[item.ID]))
+                    itemNames[item.ID] = item.Text;
+            }
+
+            foreach (var item in MenuFMGS[26].Entries)
+            {
+                if (!itemNames.ContainsKey(item.ID))
+                    itemNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(itemNames[item.ID]))
+                    itemNames[item.ID] = item.Text;
             }
 
             foreach (var item in goodsParam.Rows)
@@ -308,16 +357,27 @@ namespace FMG2ParamName
         {
             var spellNames = ItemFMGS[4].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!ModFolder)
+            foreach (var item in MenuFMGS[21].Entries)
             {
-                foreach (var item in MenuFMGS[25].Entries)
-                {
-                    if (!spellNames.ContainsKey(item.ID))
-                        spellNames.Add(item.ID, item.Text);
-                    else if (string.IsNullOrWhiteSpace(spellNames[item.ID]))
-                        spellNames[item.ID] = item.Text;
-                }
+                if (!spellNames.ContainsKey(item.ID))
+                    spellNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(spellNames[item.ID]))
+                    spellNames[item.ID] = item.Text;
             }
+
+            foreach (var item in MenuFMGS[36].Entries)
+            {
+                if (!spellNames.ContainsKey(item.ID))
+                    spellNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(spellNames[item.ID]))
+                    spellNames[item.ID] = item.Text;
+            }
+
+            //var npcSpellNames = new Dictionary<int, string>();
+            //foreach (var kvp in spellNames)
+            //{
+            //    npcSpellNames.Add(kvp.Key + 4000000, kvp.Value);
+            //}
 
             foreach (var spell in magicParam.Rows)
             {
@@ -326,7 +386,16 @@ namespace FMG2ParamName
                     if (string.IsNullOrWhiteSpace(spellNames[spell.ID]))
                         continue;
                     spell.Name = spellNames[spell.ID];
+                    continue;
                 }
+
+                //if (npcSpellNames.ContainsKey(spell.ID))
+                //{
+                //    if (string.IsNullOrWhiteSpace(npcSpellNames[spell.ID]))
+                //        continue;
+                //    spell.Name = $"NPC {npcSpellNames[spell.ID]}";
+                //    continue;
+                //}
             }
         }
 
@@ -334,16 +403,23 @@ namespace FMG2ParamName
         {
             var ringNames = ItemFMGS[3].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!ModFolder)
+            foreach (var item in MenuFMGS[20].Entries)
             {
-                foreach (var item in MenuFMGS[27].Entries)
-                {
-                    if (!ringNames.ContainsKey(item.ID))
-                        ringNames.Add(item.ID, item.Text);
-                    else if (string.IsNullOrWhiteSpace(ringNames[item.ID]))
-                        ringNames[item.ID] = item.Text;
-                }
-            }                
+                if (!ringNames.ContainsKey(item.ID))
+                    ringNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(ringNames[item.ID]))
+                    ringNames[item.ID] = item.Text;
+
+            }
+
+            foreach (var item in MenuFMGS[35].Entries)
+            {
+                if (!ringNames.ContainsKey(item.ID))
+                    ringNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(ringNames[item.ID]))
+                    ringNames[item.ID] = item.Text;
+
+            }
 
             foreach (var ring in accessoryParam.Rows)
             {
@@ -360,17 +436,21 @@ namespace FMG2ParamName
         {
             var talkNames = MenuFMGS[0].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
 
-            if (!ModFolder)
+            foreach (var item in MenuFMGS[19].Entries)
             {
-                foreach (var item in MenuFMGS[18].Entries)
-                {
-                    if (!talkNames.ContainsKey(item.ID))
-                        talkNames.Add(item.ID, item.Text);
-                    else if (string.IsNullOrWhiteSpace(talkNames[item.ID]))
-                        talkNames[item.ID] = item.Text;
-                }
+                if (!talkNames.ContainsKey(item.ID))
+                    talkNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(talkNames[item.ID]))
+                    talkNames[item.ID] = item.Text;
             }
-                
+
+            foreach (var item in MenuFMGS[28].Entries)
+            {
+                if (!talkNames.ContainsKey(item.ID))
+                    talkNames.Add(item.ID, item.Text);
+                else if (string.IsNullOrWhiteSpace(talkNames[item.ID]))
+                    talkNames[item.ID] = item.Text;
+            }
 
             foreach (var armor in talkParam.Rows)
             {
@@ -380,80 +460,6 @@ namespace FMG2ParamName
                         continue;
 
                     armor.Name = talkNames[armor.ID];
-                }
-            }
-        }
-
-        private void SortClasses(PARAM charInitParam)
-        {
-            var classNames = MenuFMGS[6].Entries.GroupBy(x => x.ID).Select(x => x.First()).ToDictionary(x => x.ID, x => x.Text);
-
-            foreach (var param in charInitParam.Rows)
-            {
-                switch (param.ID)
-                {
-                    case 2000:
-                        param.Name = $"Starting Gear: {classNames[132020]}";
-                        break;
-                    case 2001:
-                        param.Name = $"Starting Gear: {classNames[132021]}";
-                        break;
-                    case 2002:
-                        param.Name = $"Starting Gear: {classNames[132022]}";
-                        break;
-                    case 2003:
-                        param.Name = $"Starting Gear: {classNames[132023]}";
-                        break;
-                    case 2004:
-                        param.Name = $"Starting Gear: {classNames[132024]}";
-                        break;
-                    case 2005:
-                        param.Name = $"Starting Gear: {classNames[132025]}";
-                        break;
-                    case 2006:
-                        param.Name = $"Starting Gear: {classNames[132026]}";
-                        break;
-                    case 2007:
-                        param.Name = $"Starting Gear: {classNames[132027]}";
-                        break;
-                    case 2008:
-                        param.Name = $"Starting Gear: {classNames[132028]}";
-                        break;
-                    case 2009:
-                        param.Name = $"Starting Gear: {classNames[132029]}";
-                        break;
-                    case 3000:
-                        param.Name = $"Starting Display: {classNames[132020]}";
-                        break;
-                    case 3001:
-                        param.Name = $"Starting Display: {classNames[132021]}";
-                        break;
-                    case 3002:
-                        param.Name = $"Starting Display: {classNames[132022]}";
-                        break;
-                    case 3003:
-                        param.Name = $"Starting Display: {classNames[132023]}";
-                        break;
-                    case 3004:
-                        param.Name = $"Starting Display: {classNames[132024]}";
-                        break;
-                    case 3005:
-                        param.Name = $"Starting Display: {classNames[132025]}";
-                        break;
-                    case 3006:
-                        param.Name = $"Starting Display: {classNames[132026]}";
-                        break;
-                    case 3007:
-                        param.Name = $"Starting Display: {classNames[132027]}";
-                        break;
-                    case 3008:
-                        param.Name = $"Starting Display: {classNames[132028]}";
-                        break;
-                    case 3009:
-                        param.Name = $"Starting Display: {classNames[132029]}";
-                        break;
-                    default:
-                        break;
                 }
             }
         }
@@ -483,9 +489,6 @@ namespace FMG2ParamName
                         break;
                     case "TalkParam.param":
                         param.Bytes = TALK_PARAM_ST.Write();
-                        break;
-                    case "CharaInitParam.param":
-                        param.Bytes = CHARACTER_INIT_PARAM.Write();
                         break;
                     default:
                         break;

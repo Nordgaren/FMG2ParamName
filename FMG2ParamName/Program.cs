@@ -11,7 +11,7 @@ namespace FMG2ParamName
         static void Main(string[] args)
         {
 #if DEBUG
-            new DarkSouls3().PatchFiles("" ,false);
+            new DarkSouls3().PatchFiles("");
 #endif
             if (File.Exists($@"{ExeDir}\DARKSOULS.exe"))
             {
@@ -26,16 +26,10 @@ namespace FMG2ParamName
             }
             
 
-            if (File.Exists($@"{ExeDir}\DarkSoulsIII.exe"))
-            {
-                Console.WriteLine("Patching Dark Souls 3 files");
-                new DarkSouls3().PatchFiles(ExeDir, false);
-            }
-
             if (File.Exists($@"{ExeDir}..\..\DarkSoulsIII.exe"))
             {
-                Console.WriteLine("Patching Dark Souls 3 files from Mod Folder");
-                new DarkSouls3().PatchFiles(ExeDir, true);
+                Console.WriteLine("Patching Dark Souls 3 files");
+                new DarkSouls3().PatchFiles(ExeDir);
             }
 
             Console.WriteLine("Patch Complete");
