@@ -12,7 +12,7 @@
  #### DS1  
  * Put FMG2ParamName.exe in your DATA folder or DARK SOULS REMASTERED folder (Next to your dark souls exe) and run the program.  
  #### DS3  
- * Put FMG2ParamName.exe in your Mod folder that you're working on (Next to your dark souls exe) and run the program. Only works in Mod folder. Does not patch Data0m and does not patch FMGs in your Game/msg folder, but does patch in Mod/msg). Mod folder can have any name.  
+ * Put FMG2ParamName.exe in your Mod folder that you're working on (Next to your dark souls exe) and run the program. Only works in Mod folder. Does not patch Data0 and does not patch FMGs in your Game/msg/engus folder, but does patch in Mod/msg/engus). Mod folder can have any name.  
  #### FMG patch  
  * By defualt, the program renames the FMG files in the msgbnds. If you want to revert this change, restore from the .FMG2PBak. If this is too much, let me know and I'll add a prompt to the startup.  
 
