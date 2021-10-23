@@ -1,5 +1,6 @@
 # FMG2ParamName
  Reads FMGs and attempts to write the names to unknown Param Rows
+ Renames FMGs to be read easier.
 
 Still a WIP
 
